@@ -1,11 +1,12 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>O CONTRATO — Desenvolvimento Pessoal com IA ⭐</title>
-  <meta name="description" content="O CONTRATO é um site de desenvolvimento pessoal com IA. Responda perguntas simples e receba um plano personalizado.">
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>O CONTRATO — Desenvolvimento Pessoal com IA ⭐</title>
+<meta content="O CONTRATO é um site de desenvolvimento pessoal com IA. Responda perguntas simples e receba um plano personalizado." name="description"/>
+<style>
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0b0b0b;color:#f6f6f6;line-height:1.6}
     main{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px}
     h1{font-size:clamp(36px,8vw,80px);margin:0;font-weight:800}
@@ -24,54 +25,51 @@
   </style>
 </head>
 <body>
-  <main>
-    <h1>O CONTRATO</h1>
-    <h2>Desenvolvimento Pessoal com IA ⭐</h2>
-    <button id="startBtn">Começar agora</button>
-  </main>
-
-  <section id="bloco3">
-    <h2>Responda e gere seu contrato</h2>
-    <form id="qform">
-      <div>
-        <label>Seu objetivo principal (30 dias)</label>
-        <input name="objetivo" placeholder="Ex.: Ler 1 livro, perder 2kg, estudar 20h..." required>
-      </div>
-      <div>
-        <label>Por que isso importa agora?</label>
-        <input name="porque" placeholder="Ex.: Saúde, carreira, energia...">
-      </div>
-      <div>
-        <label>Tempo diário disponível</label>
-        <select name="tempo">
-          <option>5 minutos</option>
-          <option>10 minutos</option>
-          <option>25 minutos</option>
-          <option>45 minutos</option>
-        </select>
-      </div>
-      <div>
-        <label>Obstáculo mais provável</label>
-        <input name="obstaculo" placeholder="Ex.: Procrastinação, tempo, distrações...">
-      </div>
-      <button type="submit">Gerar meu contrato</button>
-    </form>
-
-    <div id="preview" class="preview" style="display:none;">
-      <h3>Seu contrato — início</h3>
-      <p id="cStart"></p>
-      <div id="cBlurred" class="blurred">
-        <p>Vou priorizar 2–3 ações de maior impacto...</p>
-        <p>Rotina diária com blocos curtos e consistentes...</p>
-        <p>Check-ins semanais e ajustes com base no progresso...</p>
-      </div>
-      <div class="cta">
-        <button>Destrave seu contrato completo – 30 dias de acesso liberado para você começar a mudança</button>
-      </div>
-    </div>
-  </section>
-
-  <script>
+<main>
+<h1>O CONTRATO</h1>
+<h2>Desenvolvimento Pessoal com IA ⭐</h2>
+<button id="startBtn">Começar agora</button>
+<div id="iaFlag" style="display:none;margin-top:10px;font-size:14px;opacity:.8">IA conectada (modo teste): contrato completo visível</div></main>
+<section id="bloco3">
+<h2>Responda e gere seu contrato</h2>
+<form id="qform">
+<div>
+<label>Seu objetivo principal (30 dias)</label>
+<input name="objetivo" placeholder="Ex.: Ler 1 livro, perder 2kg, estudar 20h..." required=""/>
+</div>
+<div>
+<label>Por que isso importa agora?</label>
+<input name="porque" placeholder="Ex.: Saúde, carreira, energia..."/>
+</div>
+<div>
+<label>Tempo diário disponível</label>
+<select name="tempo">
+<option>5 minutos</option>
+<option>10 minutos</option>
+<option>25 minutos</option>
+<option>45 minutos</option>
+</select>
+</div>
+<div>
+<label>Obstáculo mais provável</label>
+<input name="obstaculo" placeholder="Ex.: Procrastinação, tempo, distrações..."/>
+</div>
+<button type="submit">Gerar meu contrato</button>
+</form>
+<div class="preview" id="preview" style="display:none;">
+<h3>Seu contrato — início</h3>
+<p id="cStart"></p>
+<div class="blurred" id="cBlurred">
+<p>Vou priorizar 2–3 ações de maior impacto...</p>
+<p>Rotina diária com blocos curtos e consistentes...</p>
+<p>Check-ins semanais e ajustes com base no progresso...</p>
+</div>
+<div class="cta">
+<button>Destrave seu contrato completo – 30 dias de acesso liberado para você começar a mudança</button>
+</div>
+<pre id="cFull" style="display:none;white-space:pre-wrap;background:#0c0c0c;padding:16px;border-radius:10px;border:1px solid rgba(255,255,255,.08);margin-top:10px"></pre></div>
+</section>
+<script>
     document.getElementById('startBtn').addEventListener('click', () => {
       document.getElementById('bloco3').scrollIntoView({ behavior:'smooth' });
     });
@@ -105,6 +103,17 @@
       const texto = payload.preview || simulateIA(data);
       document.getElementById('cStart').innerText = texto;
       document.getElementById('preview').style.display = 'block';
+      // If API returned full contract, show it (test mode) and hide blurred/CTA
+      if (payload.full) {
+        const blurred = document.getElementById('cBlurred');
+        if (blurred) blurred.style.display = 'none';
+        const full = document.getElementById('cFull');
+        if (full) { full.textContent = payload.full; full.style.display = 'block'; }
+        const cta = document.querySelector('#preview .cta');
+        if (cta) cta.style.display = 'none';
+        const flag = document.getElementById('iaFlag');
+        if (flag) flag.style.display = 'block';
+      }
       document.getElementById('preview').scrollIntoView({ behavior:'smooth' });
     });
   </script>
