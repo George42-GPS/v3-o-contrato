@@ -1,11 +1,11 @@
 // api/contrato.js
-// Vercel Edge Function — usando OpenRouter (free tier)
-// Docs OpenRouter: https://openrouter.ai/
+// Vercel Edge Function — OpenRouter (FREE)
+// Docs: https://openrouter.ai/
 
 export const config = { runtime: "edge" };
 
 function jsonResponse(obj, status = 200) {
-  return new Response(JSON.stringify(obj), {
+  return new Response(JSON.stringify(obj, null, 2), {
     status,
     headers: {
       "Content-Type": "application/json",
@@ -19,11 +19,12 @@ export default async function handler(req) {
     return jsonResponse({ error: "Method Not Allowed" }, 405);
   }
 
-  // Pegue a chave do OpenRouter nas envs da Vercel
+  // 1) API key
   const OPENROUTER_KEY =
     process.env.OPENROUTER_API_KEY ||
-    process.env.OPENAI_API_KEY || // fallback, se você quiser manter compat
-    process.env.LLM_API_KEY || "";
+    process.env.OPENAI_API_KEY ||
+    process.env.LLM_API_KEY ||
+    "";
 
   if (!OPENROUTER_KEY) {
     return jsonResponse(
@@ -32,7 +33,7 @@ export default async function handler(req) {
     );
   }
 
-  // Parâmetros enviados pelo formulário
+  // 2) Inputs
   let data;
   try {
     data = await req.json();
@@ -41,7 +42,7 @@ export default async function handler(req) {
   }
   const { objetivo, porque, tempo, recursos, obstaculo } = data || {};
 
-  // Prompts (sua “receita escondida” embutida)
+  // 3) Prompts (receita escondida)
   const systemPrompt = `Você é um agente de desenvolvimento pessoal para brasileiros.
 Aplique discretamente: priorização de 2–3 ações de maior impacto, blocos diários curtos (5–25 min),
 check-ins semanais e retomada no mesmo dia se falhar.
@@ -62,12 +63,14 @@ Recursos disponíveis: ${recursos || "-"}
 Obstáculo provável: ${obstaculo || "-"}
 Crie o contrato seguindo o formato pedido, em até ~220 palavras.`;
 
-  // Chamada ao OpenRouter (Chat Completions)
-  // Você pode trocar o modelo. Sugestões com good/free tier:
-  // - "openai/gpt-4o-mini" (via OpenRouter)
-  // - "meta-llama/llama-3.1-70b-instruct" (mais barato, às vezes grátis)
+  // 4) OpenRouter (use um modelo FREE)
   const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-  const MODEL = process.env.MODEL_NAME || "openai/gpt-4o-mini";
+  const MODEL =
+    process.env.MODEL_NAME || "meta-llama/llama-3.1-8b-instruct:free"; // <- FREE
+
+  // Monta Referer (recomendado pelo OpenRouter)
+  const forwardedHost = req.headers.get("x-forwarded-host");
+  const referer = forwardedHost ? `https://${forwardedHost}` : "http://localhost";
 
   try {
     const resp = await fetch(API_URL, {
@@ -75,10 +78,7 @@ Crie o contrato seguindo o formato pedido, em até ~220 palavras.`;
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${OPENROUTER_KEY}`,
-        // Estes headers ajudam o OpenRouter a validar a origem (recomendado)
-        "HTTP-Referer": req.headers.get("x-forwarded-host")
-          ? `https://${req.headers.get("x-forwarded-host")}`
-          : "http://localhost",
+        "HTTP-Referer": referer,
         "X-Title": "O CONTRATO",
       },
       body: JSON.stringify({
@@ -100,8 +100,8 @@ Crie o contrato seguindo o formato pedido, em até ~220 palavras.`;
     }
 
     if (!resp.ok) {
-      // Erros do provedor (ex.: quota, auth, etc.)
-      return jsonResponse({ error: "LLM call failed", detail: json }, resp.status);
+      // Mostra o erro real (402/403/etc) em vez de [object Object]
+      return jsonResponse({ error: "LLM call failed", status: resp.status, detail: json }, resp.status);
     }
 
     const full = json?.choices?.[0]?.message?.content?.trim() || "";
