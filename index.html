@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>O CONTRATO — Desenvolvimento Pessoal com IA ⭐</title>
   <meta name="description" content="O CONTRATO é um site de desenvolvimento pessoal com IA. Responda perguntas simples e receba um plano personalizado.">
   <style>
@@ -18,7 +18,8 @@
     label{display:block;margin-bottom:4px;font-size:14px;color:#ddd}
     input,select,textarea{width:100%;padding:12px;border-radius:8px;border:none;background:#111;color:#fff}
     .preview{margin-top:30px;padding:20px;background:#111;border-radius:12px;position:relative}
-    .status{max-width:800px;margin:10px auto 0;padding:10px 14px;border-radius:10px;background:#111;border:1px solid rgba(255,255,255,.1);font-size:14px;white-space:pre-wrap}
+    pre{white-space:pre-wrap;background:#0c0c0c;padding:16px;border-radius:10px;border:1px solid rgba(255,255,255,.08);margin-top:10px}
+    .muted{opacity:.85}
   </style>
 </head>
 <body>
@@ -26,7 +27,6 @@
     <h1>O CONTRATO</h1>
     <h2>Desenvolvimento Pessoal com IA ⭐</h2>
     <button id="startBtn">Começar agora</button>
-    <div id="status" class="status" style="display:none"></div>
   </main>
 
   <section id="bloco3">
@@ -50,66 +50,115 @@
         </select>
       </div>
       <div>
+        <label>Recursos que você já tem (opcional)</label>
+        <input name="recursos" placeholder="Ex.: App de foco, livro, academia...">
+      </div>
+      <div>
         <label>Obstáculo mais provável</label>
-        <input name="obstaculo" placeholder="Ex.: Procrastinação, tempo, distrações...">
+        <input name="obstaculo" placeholder="Ex.: Procrastinação, falta de tempo, distrações...">
       </div>
       <button type="submit">Gerar meu contrato</button>
     </form>
 
     <div id="preview" class="preview" style="display:none;">
       <h3>Seu contrato</h3>
-      <pre id="cFull" style="white-space:pre-wrap;background:#0c0c0c;padding:16px;border-radius:10px;border:1px solid rgba(255,255,255,.08);margin-top:10px"></pre>
-      <p style="margin-top:10px;opacity:.85">30 dias para mudar</p>
+      <pre id="cFull"></pre>
+      <p class="muted">30 dias para mudar</p>
     </div>
   </section>
 
   <script>
-    const $status = document.getElementById('status');
-    function showStatus(msg){ $status.style.display='block'; $status.textContent = msg; }
-
     document.getElementById('startBtn').addEventListener('click', () => {
       document.getElementById('bloco3').scrollIntoView({ behavior:'smooth' });
     });
 
-    // Fallback local
-    function simulateIA(data){
-      return "Compromisso: pelos próximos 30 dias, vou focar em " + (data.objetivo||"meu objetivo") + ".\\n" +
-             "Por que agora: " + (data.porque||"quero melhorar minha vida.") + "\\n" +
-             "Vou priorizar 2–3 ações de maior impacto.";
+    // ---------- Receita escondida (gerador local) ----------
+    function pickImpactActions(objetivo) {
+      const o = (objetivo || "").toLowerCase();
+      // Sugestões simples por palavras-chave (pode expandir quando quiser)
+      if (o.includes("ler") || o.includes("leitura")) {
+        return [
+          "Ler 10–15 páginas por dia no mesmo horário",
+          "Anotar 3 ideias-chave ao final de cada sessão",
+          "Revisar marcações 1x/semana por 10 minutos"
+        ];
+      }
+      if (o.includes("estudar") || o.includes("prova") || o.includes("concurso")) {
+        return [
+          "Bloco diário de estudo focado (5–25 min) sem distrações",
+          "Revisar resumos/flashcards 10 min/dia",
+          "Exercícios práticos breves 3x/semana"
+        ];
+      }
+      if (o.includes("perder") || o.includes("peso") || o.includes("emagrecer")) {
+        return [
+          "Caminhada leve diária (10–25 min) ou alongamento",
+          "Trocar 1 lanche processado por fruta/água",
+          "Planejar 3 refeições simples da semana no domingo"
+        ];
+      }
+      if (o.includes("economiz") || o.includes("guardar") || o.includes("financ")) {
+        return [
+          "Anotar gastos em 2 categorias (essenciais/variáveis) diariamente (5 min)",
+          "Definir teto de gasto variável para a semana",
+          "Substituir 1 despesa recorrente por alternativa mais barata"
+        ];
+      }
+      // Genérico (fallback)
+      return [
+        "Definir 1 micro-ação diária que puxe o objetivo (5–25 min)",
+        "Registrar rapidamente o que foi feito ao final do dia (1–2 min)",
+        "Reservar 10–15 min semanais para revisar e ajustar"
+      ];
     }
 
-    async function generateFromAPI(data){
-      try{
-        showStatus("Chamando IA em /api/contrato ...");
-        const resp = await fetch('/api/contrato', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify(data)
-        });
-        const text = await resp.text();
-        let json;
-        try { json = JSON.parse(text); } catch(e){ json = { error: 'Invalid JSON', raw: text }; }
-        if(!resp.ok){
-          showStatus("Erro da API ("+resp.status+"):\\n"+(json.detail || json.error || text));
-          return { preview: simulateIA(data) };
-        }
-        showStatus("IA conectada: resposta OK");
-        return json;
-      }catch(e){
-        showStatus("Falha ao chamar IA: "+String(e));
-        return { preview: simulateIA(data) };
-      }
+    function normalizeTime(tempo) {
+      // retorna um texto curtinho coerente
+      if (!tempo) return "5–25 minutos";
+      const t = (tempo + "").toLowerCase();
+      if (t.includes("5")) return "5 minutos";
+      if (t.includes("10")) return "10 minutos";
+      if (t.includes("25")) return "25 minutos";
+      if (t.includes("45")) return "45 minutos";
+      return "5–25 minutos";
     }
+
+    function generateLocalContract({ objetivo, porque, tempo, recursos, obstaculo }) {
+      const actions = pickImpactActions(objetivo);
+      const tempoTxt = normalizeTime(tempo);
+      const porqueTxt = (porque && porque.trim()) ? porque.trim() : "priorizar meu progresso com passos curtos e consistentes";
+      const recTxt = (recursos && recursos.trim()) ? `Usarei: ${recursos.trim()}. ` : "";
+      const obsTxt = (obstaculo && obstaculo.trim()) ? obstaculo.trim() : "procrastinação";
+
+      // Contrato ~180–220 palavras (curto, humano, direto)
+      const linhas = [
+        `Compromisso (30 dias): vou focar diariamente em ${objetivo || "meu objetivo principal"}, com disciplina gentil e constância.`,
+        `Por que agora: ${porqueTxt}. Quero construir uma rotina que caiba na minha vida real e me mantenha avançando.`,
+        `Ações de maior impacto (prioridades):`,
+        `1) ${actions[0]}`,
+        `2) ${actions[1]}`,
+        `3) ${actions[2]}`,
+        `Rotina diária: ${tempoTxt} por dia, em blocos curtos e 100% presentes. ${recTxt}Se um dia for corrido, farei pelo menos 5 minutos para manter a chama acesa.`,
+        `Check-ins semanais: aos domingos (10–15 min) para revisar avanços, ajustar as ações e planejar a semana com clareza.`,
+        `Mitigação de risco: quando eu falhar, retomo no mesmo dia com 5 minutos. Se perder um dia inteiro, recomeço pequeno no seguinte, sem culpa e sem drama.`,
+        `Registro de progresso: vou anotar brevemente o que fiz a cada dia (1–2 min). Isso mantém a jornada visível e me dá energia para continuar.`
+      ];
+
+      return linhas.join("\n");
+    }
+    // -------------------------------------------------------
 
     const form = document.getElementById('qform');
-    form.addEventListener('submit', async (e) => {
+    const preview = document.getElementById('preview');
+    const cFull = document.getElementById('cFull');
+
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
-      const payload = await generateFromAPI(data);
-      const fullText = payload.full || payload.preview || simulateIA(data);
-      document.getElementById('cFull').textContent = fullText;
-      document.getElementById('preview').style.display = 'block';
-      document.getElementById('preview').scrollIntoView({ behavior:'smooth' });
+      const contrato = generateLocalContract(data);
+      cFull.textContent = contrato;
+      preview.style.display = 'block';
+      preview.scrollIntoView({ behavior:'smooth' });
     });
   </script>
 </body>
