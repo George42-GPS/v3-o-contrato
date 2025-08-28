@@ -59,15 +59,9 @@
 <div class="preview" id="preview" style="display:none;">
 <h3>Seu contrato — início</h3>
 <p id="cStart"></p>
-<div class="blurred" id="cBlurred">
-<p>Vou priorizar 2–3 ações de maior impacto...</p>
-<p>Rotina diária com blocos curtos e consistentes...</p>
-<p>Check-ins semanais e ajustes com base no progresso...</p>
-</div>
-<div class="cta">
-<button>Destrave seu contrato completo – 30 dias de acesso liberado para você começar a mudança</button>
-</div>
-<pre id="cFull" style="display:none;white-space:pre-wrap;background:#0c0c0c;padding:16px;border-radius:10px;border:1px solid rgba(255,255,255,.08);margin-top:10px"></pre></div>
+
+
+<pre id="cFull" style="display:none;white-space:pre-wrap;background:#0c0c0c;padding:16px;border-radius:10px;border:1px solid rgba(255,255,255,.08);margin-top:10px"></pre><p id="cFooter" style="margin-top:10px;opacity:.85">30 dias para mudar</p></div>
 </section>
 <script>
     document.getElementById('startBtn').addEventListener('click', () => {
@@ -101,19 +95,11 @@
       const data = Object.fromEntries(new FormData(form).entries());
       const payload = await generateFromAPI(data);
       const texto = payload.preview || simulateIA(data);
+      const fullText = payload.full || texto;
       document.getElementById('cStart').innerText = texto;
+      const full = document.getElementById('cFull');
+      if (full) { full.textContent = fullText; full.style.display = 'block'; }
       document.getElementById('preview').style.display = 'block';
-      // If API returned full contract, show it (test mode) and hide blurred/CTA
-      if (payload.full) {
-        const blurred = document.getElementById('cBlurred');
-        if (blurred) blurred.style.display = 'none';
-        const full = document.getElementById('cFull');
-        if (full) { full.textContent = payload.full; full.style.display = 'block'; }
-        const cta = document.querySelector('#preview .cta');
-        if (cta) cta.style.display = 'none';
-        const flag = document.getElementById('iaFlag');
-        if (flag) flag.style.display = 'block';
-      }
       document.getElementById('preview').scrollIntoView({ behavior:'smooth' });
     });
   </script>
