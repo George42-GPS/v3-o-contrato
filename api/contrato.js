@@ -1,3 +1,7 @@
+// api/contrato.js
+// Vercel Edge Function — usando OpenRouter (free tier)
+// Docs OpenRouter: https://openrouter.ai/
+
 export const config = { runtime: "edge" };
 
 function jsonResponse(obj, status = 200) {
@@ -15,15 +19,29 @@ export default async function handler(req) {
     return jsonResponse({ error: "Method Not Allowed" }, 405);
   }
 
+  // Pegue a chave do OpenRouter nas envs da Vercel
+  const OPENROUTER_KEY =
+    process.env.OPENROUTER_API_KEY ||
+    process.env.OPENAI_API_KEY || // fallback, se você quiser manter compat
+    process.env.LLM_API_KEY || "";
+
+  if (!OPENROUTER_KEY) {
+    return jsonResponse(
+      { error: "Missing OPENROUTER_API_KEY (ou OPENAI_API_KEY/LLM_API_KEY) nas variáveis da Vercel" },
+      500
+    );
+  }
+
+  // Parâmetros enviados pelo formulário
   let data;
   try {
     data = await req.json();
   } catch {
     return jsonResponse({ error: "Invalid JSON" }, 400);
   }
-
   const { objetivo, porque, tempo, recursos, obstaculo } = data || {};
 
+  // Prompts (sua “receita escondida” embutida)
   const systemPrompt = `Você é um agente de desenvolvimento pessoal para brasileiros.
 Aplique discretamente: priorização de 2–3 ações de maior impacto, blocos diários curtos (5–25 min),
 check-ins semanais e retomada no mesmo dia se falhar.
@@ -44,17 +62,28 @@ Recursos disponíveis: ${recursos || "-"}
 Obstáculo provável: ${obstaculo || "-"}
 Crie o contrato seguindo o formato pedido, em até ~220 palavras.`;
 
+  // Chamada ao OpenRouter (Chat Completions)
+  // Você pode trocar o modelo. Sugestões com good/free tier:
+  // - "openai/gpt-4o-mini" (via OpenRouter)
+  // - "meta-llama/llama-3.1-70b-instruct" (mais barato, às vezes grátis)
+  const API_URL = "https://openrouter.ai/api/v1/chat/completions";
+  const MODEL = process.env.MODEL_NAME || "openai/gpt-4o-mini";
+
   try {
-    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+    const resp = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY || ""}`,
+        "Authorization": `Bearer ${OPENROUTER_KEY}`,
+        // Estes headers ajudam o OpenRouter a validar a origem (recomendado)
+        "HTTP-Referer": req.headers.get("x-forwarded-host")
+          ? `https://${req.headers.get("x-forwarded-host")}`
+          : "http://localhost",
+        "X-Title": "O CONTRATO",
       },
       body: JSON.stringify({
-        model: process.env.MODEL_NAME || "gpt-4o-mini",
+        model: MODEL,
         temperature: 0.7,
-        max_tokens: 600,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -62,14 +91,21 @@ Crie o contrato seguindo o formato pedido, em até ~220 palavras.`;
       }),
     });
 
-    if (!resp.ok) {
-      const errText = await resp.text();
-      return jsonResponse({ error: "LLM call failed", detail: errText }, 502);
+    const raw = await resp.text();
+    let json;
+    try {
+      json = JSON.parse(raw);
+    } catch {
+      return jsonResponse({ error: "Invalid JSON from provider", raw }, 502);
     }
 
-    const json = await resp.json();
+    if (!resp.ok) {
+      // Erros do provedor (ex.: quota, auth, etc.)
+      return jsonResponse({ error: "LLM call failed", detail: json }, resp.status);
+    }
+
     const full = json?.choices?.[0]?.message?.content?.trim() || "";
-    const lines = full.split("\n").map(s => s.trim()).filter(Boolean);
+    const lines = full.split("\n").map((s) => s.trim()).filter(Boolean);
     const preview = lines.slice(0, 3).join("\n");
 
     return jsonResponse({
@@ -79,8 +115,8 @@ Crie o contrato seguindo o formato pedido, em até ~220 palavras.`;
         daily_block: "5–25 minutos por dia, todos os dias",
         impact_actions: ["Ação 1", "Ação 2", "Ação 3"],
         checkins: "Revisão semanal (10–15 min) aos domingos",
-        recovery: "Se falhar no dia, retome com 5 minutos no mesmo dia"
-      }
+        recovery: "Se falhar no dia, retome com 5 minutos no mesmo dia",
+      },
     });
   } catch (e) {
     return jsonResponse({ error: "Unexpected error", detail: String(e) }, 500);
