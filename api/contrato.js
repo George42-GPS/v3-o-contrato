@@ -1,6 +1,6 @@
 // api/contrato.js
-// Vercel Edge Function usando OpenAI (gpt-4o-mini)
-// Necessário: variável OPENAI_API_KEY nas Environment Variables (Production + Preview).
+// Vercel Edge Function usando OpenAI (gpt-4o)
+// Necessário: variável OPENAI_API_KEY nas Environment Variables (Production + Preview)
 
 export const config = { runtime: "edge" };
 
@@ -61,7 +61,7 @@ Crie o contrato seguindo o formato pedido, em até ~220 palavras.`;
         "Authorization": `Bearer ${OPENAI_KEY}`,
       },
       body: JSON.stringify({
-        model: process.env.MODEL_NAME || "gpt-4o-mini",
+        model: process.env.MODEL_NAME || "gpt-4o", // <- corrigido aqui
         temperature: 0.7,
         max_tokens: 600,
         messages: [
