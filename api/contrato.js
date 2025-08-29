@@ -1,13 +1,16 @@
 // api/contrato.js
-// Vercel Edge Function — OpenRouter (auto)
-// Coloque OPENROUTER_API_KEY nas variáveis da Vercel (Production + Preview)
+// Vercel Edge Function usando OpenAI (gpt-4o-mini)
+// Necessário: variável OPENAI_API_KEY nas Environment Variables (Production + Preview).
 
 export const config = { runtime: "edge" };
 
 function jsonResponse(obj, status = 200) {
   return new Response(JSON.stringify(obj, null, 2), {
     status,
-    headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+    },
   });
 }
 
@@ -16,20 +19,18 @@ export default async function handler(req) {
     return jsonResponse({ error: "Method Not Allowed" }, 405);
   }
 
-  const OPENROUTER_KEY =
-    process.env.OPENROUTER_API_KEY ||
-    process.env.OPENAI_API_KEY ||
-    process.env.LLM_API_KEY || "";
-
-  if (!OPENROUTER_KEY) {
-    return jsonResponse(
-      { error: "Missing OPENROUTER_API_KEY (ou OPENAI_API_KEY/LLM_API_KEY) nas variáveis da Vercel" },
-      500
-    );
+  const OPENAI_KEY = process.env.OPENAI_API_KEY || "";
+  if (!OPENAI_KEY) {
+    return jsonResponse({ error: "Missing OPENAI_API_KEY in Vercel env" }, 500);
   }
 
   let data;
-  try { data = await req.json(); } catch { return jsonResponse({ error: "Invalid JSON" }, 400); }
+  try {
+    data = await req.json();
+  } catch {
+    return jsonResponse({ error: "Invalid JSON" }, 400);
+  }
+
   const { objetivo, porque, tempo, recursos, obstaculo } = data || {};
 
   const systemPrompt = `Você é um agente de desenvolvimento pessoal para brasileiros.
@@ -52,24 +53,17 @@ Recursos disponíveis: ${recursos || "-"}
 Obstáculo provável: ${obstaculo || "-"}
 Crie o contrato seguindo o formato pedido, em até ~220 palavras.`;
 
-  const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-  const MODEL = process.env.MODEL_NAME || "openrouter/auto"; // <- deixa o OpenRouter escolher
-
-  const forwardedHost = req.headers.get("x-forwarded-host");
-  const referer = forwardedHost ? `https://${forwardedHost}` : "http://localhost";
-
   try {
-    const resp = await fetch(API_URL, {
+    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${OPENROUTER_KEY}`,
-        "HTTP-Referer": referer,
-        "X-Title": "O CONTRATO",
+        "Authorization": `Bearer ${OPENAI_KEY}`,
       },
       body: JSON.stringify({
-        model: MODEL,
+        model: process.env.MODEL_NAME || "gpt-4o-mini",
         temperature: 0.7,
+        max_tokens: 600,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -78,10 +72,12 @@ Crie o contrato seguindo o formato pedido, em até ~220 palavras.`;
     });
 
     const raw = await resp.text();
-    let json; try { json = JSON.parse(raw); } catch { return jsonResponse({ error: "Invalid JSON from provider", raw }, 502); }
+    let json;
+    try { json = JSON.parse(raw); }
+    catch { return jsonResponse({ error: "Invalid JSON from OpenAI", raw }, 502); }
 
     if (!resp.ok) {
-      return jsonResponse({ error: "LLM call failed", status: resp.status, detail: json }, resp.status);
+      return jsonResponse({ error: "OpenAI error", status: resp.status, detail: json }, resp.status);
     }
 
     const full = json?.choices?.[0]?.message?.content?.trim() || "";
