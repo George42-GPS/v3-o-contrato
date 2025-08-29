@@ -127,12 +127,6 @@
   </main>
 
   <script>
-    // Scroll suave
-    document.addEventListener('click', (e) => {
-      const btn = e.target.closest('button[href="#bloco3"], #startBtn');
-      if(btn){ document.getElementById('bloco3').scrollIntoView({ behavior:'smooth' }); }
-    });
-
     // -------- Gerador local (fallback) --------
     function pickImpactActions(objetivo) {
       const o = (objetivo || "").toLowerCase();
@@ -246,8 +240,6 @@
       cFull.textContent = fullText;
       preview.style.display = 'block';
       preview.scrollIntoView({ behavior:'smooth' });
-      // Atualiza legenda da jornada (ainda estática visualmente)
-      document.querySelector('.legend span b').textContent = 'Dia 0';
     });
   </script>
 </body>
