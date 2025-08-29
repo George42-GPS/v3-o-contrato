@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>O CONTRATO — Desenvolvimento Pessoal com IA ⭐</title>
-  <meta name="description" content="Responda e receba um plano de 30 dias. Pequenas vitórias diárias, contrato vivo.">
   <style>
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0b0b0b;color:#f6f6f6;line-height:1.6}
     main{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;padding:20px}
@@ -16,10 +15,10 @@
     form{display:grid;gap:16px;text-align:left}
     label{display:block;margin-bottom:4px;font-size:14px;color:#ddd}
     input,select,textarea{width:100%;padding:12px;border-radius:8px;border:none;background:#111;color:#fff}
-    .preview{margin-top:30px;padding:20px;background:#111;border-radius:12px;position:relative}
-    pre{white-space:pre-wrap;background:#0c0c0c;padding:16px;border-radius:10px;border:1px solid rgba(255,255,255,.08);margin-top:10px}
-    .muted{opacity:.85}
-    .status{max-width:800px;margin:10px auto 0;padding:10px 14px;border-radius:10px;background:#111;border:1px solid rgba(255,255,255,.1);font-size:14px;white-space:pre-wrap}
+    .preview{margin-top:30px;padding:20px;background:#111;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+    pre{white-space:pre-wrap;background:#161616;padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,.12);margin-top:12px;font-size:18px;line-height:1.75}
+    .muted{opacity:.95;font-weight:700;margin-top:12px}
+    .preview-footer{border-top:1px solid rgba(255,255,255,.08);padding-top:8px;margin-top:12px}
   </style>
 </head>
 <body>
@@ -27,18 +26,21 @@
     <h1>O CONTRATO</h1>
     <h2>Desenvolvimento Pessoal com IA ⭐</h2>
     <button id="startBtn">Começar agora</button>
-    <div id="status" class="status" style="display:none"></div>
   </main>
 
   <section id="bloco3">
     <h2>Responda e gere seu contrato</h2>
     <form id="qform">
       <div>
+        <label>Seu nome (para personalizar o contrato)</label>
+        <input name="nome" placeholder="Ex.: George">
+      </div>
+      <div>
         <label>Seu objetivo principal (30 dias)</label>
         <input name="objetivo" placeholder="Ex.: Ler 1 livro, perder 2kg, estudar 20h..." required>
       </div>
       <div>
-        <label>Por que isso importa agora?</label>
+        <label>Por que agora?</label>
         <input name="porque" placeholder="Ex.: Saúde, carreira, energia...">
       </div>
       <div>
@@ -64,52 +66,41 @@
     <div id="preview" class="preview" style="display:none;">
       <h3>Seu contrato</h3>
       <pre id="cFull"></pre>
-      <p class="muted">30 dias para mudar</p>
+      <p class="muted preview-footer">🚀 30 dias para mudar</p>
     </div>
   </section>
 
   <script>
-    const $status = document.getElementById('status');
-    const showStatus = (msg) => { $status.style.display='block'; $status.textContent = msg; };
-
     document.getElementById('startBtn').addEventListener('click', () => {
       document.getElementById('bloco3').scrollIntoView({ behavior:'smooth' });
     });
 
-    // -------- Gerador local (fallback) --------
+    // Fallback local
     function pickImpactActions(objetivo) {
       const o = (objetivo || "").toLowerCase();
-      if (o.includes("ler") || o.includes("leitura")) {
-        return [
-          "Ler 10–15 páginas por dia no mesmo horário",
-          "Anotar 3 ideias-chave ao final de cada sessão",
-          "Revisar marcações 1x/semana por 10 minutos"
-        ];
-      }
-      if (o.includes("estudar") || o.includes("prova") || o.includes("concurso")) {
-        return [
-          "Bloco diário de estudo focado (5–25 min) sem distrações",
-          "Revisar resumos/flashcards 10 min/dia",
-          "Exercícios práticos breves 3x/semana"
-        ];
-      }
-      if (o.includes("perder") || o.includes("peso") || o.includes("emagrecer")) {
-        return [
-          "Caminhada leve diária (10–25 min) ou alongamento",
-          "Trocar 1 lanche processado por fruta/água",
-          "Planejar 3 refeições simples da semana no domingo"
-        ];
-      }
-      if (o.includes("economiz") || o.includes("guardar") || o.includes("financ")) {
-        return [
-          "Anotar gastos em 2 categorias (essenciais/variáveis) diariamente (5 min)",
-          "Definir teto de gasto variável para a semana",
-          "Substituir 1 despesa recorrente por alternativa mais barata"
-        ];
-      }
+      if (o.includes("ler") || o.includes("leitura")) return [
+        "Ler 10–15 páginas por dia no mesmo horário",
+        "Anotar 3 ideias-chave ao final de cada sessão",
+        "Revisar marcações 1x/semana por 10 minutos"
+      ];
+      if (o.includes("estudar") || o.includes("prova") || o.includes("concurso")) return [
+        "Bloco diário de estudo focado (5–25 min) sem distrações",
+        "Revisar resumos/flashcards 10 min/dia",
+        "Exercícios práticos breves 3x/semana"
+      ];
+      if (o.includes("perder") || o.includes("peso") || o.includes("emagrecer")) return [
+        "Caminhada leve diária (10–25 min) ou alongamento",
+        "Trocar 1 lanche processado por fruta/água",
+        "Planejar 3 refeições simples da semana no domingo"
+      ];
+      if (o.includes("economiz") || o.includes("guardar") || o.includes("financ")) return [
+        "Anotar gastos em 2 categorias diariamente (5 min)",
+        "Definir teto de gasto variável para a semana",
+        "Substituir 1 despesa recorrente por alternativa mais barata"
+      ];
       return [
         "Definir 1 micro-ação diária que puxe o objetivo (5–25 min)",
-        "Registrar rapidamente o que foi feito ao final do dia (1–2 min)",
+        "Registrar o que foi feito ao final do dia (1–2 min)",
         "Reservar 10–15 min semanais para revisar e ajustar"
       ];
     }
@@ -122,48 +113,67 @@
       if (t.includes("45")) return "45 minutos";
       return "5–25 minutos";
     }
-    function generateLocalContract({ objetivo, porque, tempo, recursos, obstaculo }) {
+    function generateLocalContract({ objetivo, porque, tempo, recursos, obstaculo, nome }) {
       const actions = pickImpactActions(objetivo);
       const tempoTxt = normalizeTime(tempo);
       const porqueTxt = (porque && porque.trim()) ? porque.trim() : "priorizar meu progresso com passos curtos e consistentes";
       const recTxt = (recursos && recursos.trim()) ? `Usarei: ${recursos.trim()}. ` : "";
-      const obsTxt = (obstaculo && obstaculo.trim()) ? obstaculo.trim() : "procrastinação";
+      const firstPerson = (nome && nome.trim()) ? `Eu, ${nome.trim()}, ` : "";
       const linhas = [
-        `Compromisso (30 dias): vou focar diariamente em ${objetivo || "meu objetivo principal"}, com disciplina gentil e constância.`,
-        `Por que agora: ${porqueTxt}. Quero construir uma rotina que caiba na minha vida real e me mantenha avançando.`,
-        `Ações de maior impacto (prioridades):`,
-        `1) ${actions[0]}`,
-        `2) ${actions[1]}`,
-        `3) ${actions[2]}`,
-        `Rotina diária: ${tempoTxt} por dia, em blocos curtos e 100% presentes. ${recTxt}Se um dia for corrido, farei pelo menos 5 minutos para manter a chama acesa.`,
-        `Check-ins semanais: aos domingos (10–15 min) para revisar avanços, ajustar as ações e planejar a semana com clareza.`,
-        `Mitigação de risco: quando eu falhar, retomo no mesmo dia com 5 minutos. Se perder um dia inteiro, recomeço pequeno no seguinte, sem culpa e sem drama.`,
-        `Registro de progresso: vou anotar brevemente o que fiz a cada dia (1–2 min). Isso mantém a jornada visível e me dá energia para continuar.`
+        `📄 **Contrato de 30 dias: ${objetivo || "meu objetivo"}**`,
+        ``,
+        `🤝 **Compromisso**`,
+        `${firstPerson}me comprometo a executar este plano por 30 dias.`,
+        ``,
+        `⏰ **Por que agora?**`,
+        `${porqueTxt}.`,
+        ``,
+        `🔥 **Ações de maior impacto**`,
+        `1️⃣ ${actions[0]}`,
+        `2️⃣ ${actions[1]}`,
+        `3️⃣ ${actions[2]}`,
+        ``,
+        `📅 **Rotina diária**`,
+        `${tempoTxt} por dia, em blocos curtos e 100% presentes. ${recTxt}Se um dia for corrido, farei pelo menos 5 minutos para manter a chama acesa.`,
+        ``,
+        `📝 **Check-ins semanais**`,
+        `Todo domingo (10–15 min) para revisar avanços, ajustar ações e planejar a semana com clareza.`,
+        ``,
+        `💪 **Retomada**`,
+        `Se eu falhar, não me critico. Reavalio, ajusto e retomo no dia seguinte.`
       ];
       return linhas.join("\n");
     }
-    // -----------------------------------------
 
     async function generateFromAPI(data){
       try{
-        showStatus("Chamando IA (OpenAI) em /api/contrato ...");
         const resp = await fetch('/api/contrato', {
           method:'POST',
           headers:{'Content-Type':'application/json'},
           body: JSON.stringify(data)
         });
         const text = await resp.text();
-        let json; try { json = JSON.parse(text); } catch(e){ json = { error: 'Invalid JSON', raw: text }; }
-        if(!resp.ok){
-          showStatus(`Erro da IA (${resp.status}):\n` + (JSON.stringify(json, null, 2)));
-          return null;
-        }
-        showStatus("IA conectada: resposta OK");
+        let json; try { json = JSON.parse(text); } catch(e){ return null; }
+        if(!resp.ok) return null;
         return json;
-      }catch(e){
-        showStatus("Falha ao chamar IA: " + String(e));
-        return null;
+      }catch(e){ return null; }
+    }
+
+    function formatContract(rawText, nome){
+      let txt = rawText || "";
+      txt = txt.replace(/\*\*Compromisso:\*\*/gi, "🤝 **Compromisso**");
+      txt = txt.replace(/\*\*Por que agora:?\??\*\*/gi, "⏰ **Por que agora?**");
+      txt = txt.replace(/\*\*Ações de maior impacto:\*\*/gi, "🔥 **Ações de maior impacto**");
+      txt = txt.replace(/\*\*Rotina diária:\*\*/gi, "📅 **Rotina diária**");
+      txt = txt.replace(/\*\*Check-ins semanais:\*\*/gi, "📝 **Check-ins semanais**");
+      txt = txt.replace(/\*\*Retomada:\*\*/gi, "💪 **Retomada**");
+      txt = txt.replace(/^(\*\*Contrato.*\*\*)/m, "📄 $1");
+      if (nome && nome.trim()) {
+        txt = txt.replace(/Comprometo[\-\s]?me a/gi, "Eu, " + nome.trim() + ", me comprometo a");
+        txt = txt.replace(/Eu me comprometo a/gi, "Eu, " + nome.trim() + ", me comprometo a");
+        txt = txt.replace(/(🤝 \*\*Compromisso\*\*[\s\S]*?\n)/, "$1Eu, " + nome.trim() + ", ");
       }
+      return txt;
     }
 
     const form = document.getElementById('qform');
@@ -174,7 +184,7 @@
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
       const payload = await generateFromAPI(data);
-      const fullText = (payload && payload.full) ? payload.full : generateLocalContract(data);
+      let fullText = payload && payload.full ? formatContract(payload.full, data.nome) : generateLocalContract(data);
       cFull.textContent = fullText;
       preview.style.display = 'block';
       preview.scrollIntoView({ behavior:'smooth' });
