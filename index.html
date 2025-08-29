@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>O CONTRATO — Desenvolvimento Pessoal com IA ⭐</title>
-  <meta name="description" content="O CONTRATO é um site de desenvolvimento pessoal com IA. Responda perguntas simples e receba um plano personalizado.">
+  <meta name="description" content="Responda e receba um plano de 30 dias. Pequenas vitórias diárias, contrato vivo.">
   <style>
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0b0b0b;color:#f6f6f6;line-height:1.6}
     main{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;padding:20px}
@@ -12,7 +12,6 @@
     h2{font-size:clamp(18px,3vw,32px);margin:12px 0 24px;font-weight:500;color:#f59e0b}
     button{padding:14px 24px;font-size:clamp(16px,2vw,20px);font-weight:600;border:none;border-radius:12px;cursor:pointer;background:#f59e0b;color:#111;transition:background .2s}
     button:hover{background:#e6a700}
-
     section{padding:40px 20px;max-width:800px;margin:0 auto}
     form{display:grid;gap:16px;text-align:left}
     label{display:block;margin-bottom:4px;font-size:14px;color:#ddd}
@@ -20,6 +19,7 @@
     .preview{margin-top:30px;padding:20px;background:#111;border-radius:12px;position:relative}
     pre{white-space:pre-wrap;background:#0c0c0c;padding:16px;border-radius:10px;border:1px solid rgba(255,255,255,.08);margin-top:10px}
     .muted{opacity:.85}
+    .status{max-width:800px;margin:10px auto 0;padding:10px 14px;border-radius:10px;background:#111;border:1px solid rgba(255,255,255,.1);font-size:14px;white-space:pre-wrap}
   </style>
 </head>
 <body>
@@ -27,6 +27,7 @@
     <h1>O CONTRATO</h1>
     <h2>Desenvolvimento Pessoal com IA ⭐</h2>
     <button id="startBtn">Começar agora</button>
+    <div id="status" class="status" style="display:none"></div>
   </main>
 
   <section id="bloco3">
@@ -68,14 +69,16 @@
   </section>
 
   <script>
+    const $status = document.getElementById('status');
+    const showStatus = (msg) => { $status.style.display='block'; $status.textContent = msg; };
+
     document.getElementById('startBtn').addEventListener('click', () => {
       document.getElementById('bloco3').scrollIntoView({ behavior:'smooth' });
     });
 
-    // ---------- Receita escondida (gerador local) ----------
+    // -------- Gerador local (fallback) --------
     function pickImpactActions(objetivo) {
       const o = (objetivo || "").toLowerCase();
-      // Sugestões simples por palavras-chave (pode expandir quando quiser)
       if (o.includes("ler") || o.includes("leitura")) {
         return [
           "Ler 10–15 páginas por dia no mesmo horário",
@@ -104,16 +107,13 @@
           "Substituir 1 despesa recorrente por alternativa mais barata"
         ];
       }
-      // Genérico (fallback)
       return [
         "Definir 1 micro-ação diária que puxe o objetivo (5–25 min)",
         "Registrar rapidamente o que foi feito ao final do dia (1–2 min)",
         "Reservar 10–15 min semanais para revisar e ajustar"
       ];
     }
-
     function normalizeTime(tempo) {
-      // retorna um texto curtinho coerente
       if (!tempo) return "5–25 minutos";
       const t = (tempo + "").toLowerCase();
       if (t.includes("5")) return "5 minutos";
@@ -122,15 +122,12 @@
       if (t.includes("45")) return "45 minutos";
       return "5–25 minutos";
     }
-
     function generateLocalContract({ objetivo, porque, tempo, recursos, obstaculo }) {
       const actions = pickImpactActions(objetivo);
       const tempoTxt = normalizeTime(tempo);
       const porqueTxt = (porque && porque.trim()) ? porque.trim() : "priorizar meu progresso com passos curtos e consistentes";
       const recTxt = (recursos && recursos.trim()) ? `Usarei: ${recursos.trim()}. ` : "";
       const obsTxt = (obstaculo && obstaculo.trim()) ? obstaculo.trim() : "procrastinação";
-
-      // Contrato ~180–220 palavras (curto, humano, direto)
       const linhas = [
         `Compromisso (30 dias): vou focar diariamente em ${objetivo || "meu objetivo principal"}, com disciplina gentil e constância.`,
         `Por que agora: ${porqueTxt}. Quero construir uma rotina que caiba na minha vida real e me mantenha avançando.`,
@@ -143,20 +140,42 @@
         `Mitigação de risco: quando eu falhar, retomo no mesmo dia com 5 minutos. Se perder um dia inteiro, recomeço pequeno no seguinte, sem culpa e sem drama.`,
         `Registro de progresso: vou anotar brevemente o que fiz a cada dia (1–2 min). Isso mantém a jornada visível e me dá energia para continuar.`
       ];
-
       return linhas.join("\n");
     }
-    // -------------------------------------------------------
+    // -----------------------------------------
+
+    async function generateFromAPI(data){
+      try{
+        showStatus("Chamando IA (OpenAI) em /api/contrato ...");
+        const resp = await fetch('/api/contrato', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(data)
+        });
+        const text = await resp.text();
+        let json; try { json = JSON.parse(text); } catch(e){ json = { error: 'Invalid JSON', raw: text }; }
+        if(!resp.ok){
+          showStatus(`Erro da IA (${resp.status}):\n` + (JSON.stringify(json, null, 2)));
+          return null;
+        }
+        showStatus("IA conectada: resposta OK");
+        return json;
+      }catch(e){
+        showStatus("Falha ao chamar IA: " + String(e));
+        return null;
+      }
+    }
 
     const form = document.getElementById('qform');
     const preview = document.getElementById('preview');
     const cFull = document.getElementById('cFull');
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
-      const contrato = generateLocalContract(data);
-      cFull.textContent = contrato;
+      const payload = await generateFromAPI(data);
+      const fullText = (payload && payload.full) ? payload.full : generateLocalContract(data);
+      cFull.textContent = fullText;
       preview.style.display = 'block';
       preview.scrollIntoView({ behavior:'smooth' });
     });
