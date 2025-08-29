@@ -3,127 +3,180 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>O CONTRATO — Desenvolvimento Pessoal com IA ⭐</title>
+  <title>30 dias para mudar! — O CONTRATO</title>
+  <meta name="description" content="30 dias para mudar: gere um plano personalizado e acompanhe seu progresso com O CONTRATO.">
   <style>
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0b0b0b;color:#f6f6f6;line-height:1.6}
-    main{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;padding:20px}
-    h1{font-size:clamp(36px,8vw,80px);margin:0;font-weight:800}
-    h2{font-size:clamp(18px,3vw,32px);margin:12px 0 24px;font-weight:500;color:#f59e0b}
-    button{padding:14px 24px;font-size:clamp(16px,2vw,20px);font-weight:600;border:none;border-radius:12px;cursor:pointer;background:#f59e0b;color:#111;transition:background .2s}
-    button:hover{background:#e6a700}
-    section{padding:40px 20px;max-width:800px;margin:0 auto}
-    form{display:grid;gap:16px;text-align:left}
-    label{display:block;margin-bottom:4px;font-size:14px;color:#ddd}
-    input,select,textarea{width:100%;padding:12px;border-radius:8px;border:none;background:#111;color:#fff}
-    .preview{margin-top:30px;padding:20px;background:#111;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
-    pre{white-space:pre-wrap;background:#161616;padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,.12);margin-top:12px;font-size:18px;line-height:1.75}
-    .muted{opacity:.95;font-weight:700;margin-top:12px}
-    .preview-footer{border-top:1px solid rgba(255,255,255,.08);padding-top:8px;margin-top:12px}
+    :root{
+      --bg:#f7f7fb;
+      --text:#14151a;
+      --muted:#6b7280;
+      --card:#ffffff;
+      --primary:#4f46e5;   /* indigo */
+      --accent:#10b981;    /* green */
+      --border:#e5e7eb;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+    header{padding:28px 20px;text-align:center}
+    h1{font-size:clamp(34px,6vw,64px);margin:0 0 6px;font-weight:800;color:var(--primary)}
+    .sub{font-weight:600;color:var(--muted)}
+    main{padding:10px 20px 60px;max-width:960px;margin:0 auto}
+
+    /* Journey / timeline */
+    .journey{
+      margin:26px 0 18px;background:var(--card);border:1px solid var(--border);
+      border-radius:16px;padding:18px 20px;box-shadow:0 8px 28px rgba(17,24,39,.06)
+    }
+    .journey h3{margin:0 0 10px;font-size:18px}
+    .line{
+      position:relative;height:8px;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--accent));
+      margin:10px 0 6px;
+    }
+    .tick{position:absolute;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--primary)}
+    .tick.end{right:0;left:auto;border-color:var(--accent)}
+    .legend{display:flex;justify-content:space-between;font-size:14px;color:var(--muted)}
+    .legend b{color:var(--text)}
+
+    section{margin-top:26px}
+    form{display:grid;gap:16px;background:var(--card);border:1px solid var(--border);padding:20px;border-radius:16px;box-shadow:0 8px 28px rgba(17,24,39,.06)}
+    label{display:block;margin-bottom:6px;font-size:14px;color:var(--muted);font-weight:600}
+    input,select,textarea{
+      width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--text);
+      font-size:16px;outline:none
+    }
+    button{
+      padding:14px 20px;font-size:16px;font-weight:700;border:none;border-radius:12px;cursor:pointer;
+      background:var(--primary);color:#fff;box-shadow:0 8px 20px rgba(79,70,229,.25);transition:transform .05s ease
+    }
+    button:active{transform:translateY(1px)}
+
+    .preview{
+      margin-top:22px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;
+      box-shadow:0 8px 28px rgba(17,24,39,.06)
+    }
+    .preview h3{margin:0 0 12px}
+    pre{
+      white-space:pre-wrap;background:#fff;padding:18px;border-radius:12px;border:1px solid var(--border);
+      margin-top:12px;font-size:18px;line-height:1.75
+    }
+    .muted{color:var(--muted)}
   </style>
 </head>
 <body>
+  <header>
+    <h1>30 dias para mudar!</h1>
+    <div class="sub">O CONTRATO — Desenvolvimento Pessoal com IA ⭐</div>
+  </header>
+
   <main>
-    <h1>O CONTRATO</h1>
-    <h2>Desenvolvimento Pessoal com IA ⭐</h2>
-    <button id="startBtn">Começar agora</button>
+    <!-- JOURNEY / PROGRESS -->
+    <div class="journey" aria-label="Jornada de 30 dias">
+      <h3>Jornada do Contrato</h3>
+      <div class="line">
+        <span class="tick" style="left:0%" aria-label="Dia 0"></span>
+        <span class="tick end" style="right:0%" aria-label="Dia 30"></span>
+      </div>
+      <div class="legend">
+        <span>Você está aqui: <b>Dia 0</b></span>
+        <span>Objetivo: <b>Dia 30</b></span>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <section id="bloco3">
+      <h2>Responda e gere seu contrato</h2>
+      <form id="qform">
+        <div>
+          <label>Seu nome (para personalizar o contrato)</label>
+          <input name="nome" placeholder="Ex.: George">
+        </div>
+        <div>
+          <label>Seu objetivo principal (30 dias)</label>
+          <input name="objetivo" placeholder="Ex.: Correr 3x por semana" required>
+        </div>
+        <div>
+          <label>Por que agora?</label>
+          <input name="porque" placeholder="Ex.: Saúde, energia, bem-estar...">
+        </div>
+        <div>
+          <label>Tempo disponível</label>
+          <select name="tempo">
+            <option>5 minutos</option>
+            <option>10 minutos</option>
+            <option selected>25 minutos</option>
+            <option>45 minutos</option>
+          </select>
+        </div>
+        <div>
+          <label>Recursos que você já tem (opcional)</label>
+          <input name="recursos" placeholder="Ex.: App de foco, tênis, parque...">
+        </div>
+        <div>
+          <label>Obstáculo mais provável</label>
+          <input name="obstaculo" placeholder="Ex.: Procrastinação, tempo, distrações...">
+        </div>
+        <button type="submit">Gerar meu contrato</button>
+      </form>
+
+      <!-- PREVIEW -->
+      <div id="preview" class="preview" style="display:none;">
+        <h3>Seu contrato</h3>
+        <pre id="cFull"></pre>
+      </div>
+    </section>
   </main>
 
-  <section id="bloco3">
-    <h2>Responda e gere seu contrato</h2>
-    <form id="qform">
-      <div>
-        <label>Seu nome (para personalizar o contrato)</label>
-        <input name="nome" placeholder="Ex.: George">
-      </div>
-      <div>
-        <label>Seu objetivo principal (30 dias)</label>
-        <input name="objetivo" placeholder="Ex.: Ler 1 livro, perder 2kg, estudar 20h..." required>
-      </div>
-      <div>
-        <label>Por que agora?</label>
-        <input name="porque" placeholder="Ex.: Saúde, carreira, energia...">
-      </div>
-      <div>
-        <label>Tempo diário disponível</label>
-        <select name="tempo">
-          <option>5 minutos</option>
-          <option>10 minutos</option>
-          <option>25 minutos</option>
-          <option>45 minutos</option>
-        </select>
-      </div>
-      <div>
-        <label>Recursos que você já tem (opcional)</label>
-        <input name="recursos" placeholder="Ex.: App de foco, livro, academia...">
-      </div>
-      <div>
-        <label>Obstáculo mais provável</label>
-        <input name="obstaculo" placeholder="Ex.: Procrastinação, falta de tempo, distrações...">
-      </div>
-      <button type="submit">Gerar meu contrato</button>
-    </form>
-
-    <div id="preview" class="preview" style="display:none;">
-      <h3>Seu contrato</h3>
-      <pre id="cFull"></pre>
-      <p class="muted preview-footer">🚀 30 dias para mudar</p>
-    </div>
-  </section>
-
   <script>
-    document.getElementById('startBtn').addEventListener('click', () => {
-      document.getElementById('bloco3').scrollIntoView({ behavior:'smooth' });
+    // Scroll suave
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[href="#bloco3"], #startBtn');
+      if(btn){ document.getElementById('bloco3').scrollIntoView({ behavior:'smooth' }); }
     });
 
-    // Fallback local
+    // -------- Gerador local (fallback) --------
     function pickImpactActions(objetivo) {
       const o = (objetivo || "").toLowerCase();
+      if (o.includes("correr") || o.includes("corrida")) return [
+        "Preparo rápido: deixar roupas separadas na noite anterior",
+        "Mini-aquecimento: 5 minutos antes de cada corrida",
+        "Compromisso público: contar seu plano a alguém de confiança"
+      ];
       if (o.includes("ler") || o.includes("leitura")) return [
-        "Ler 10–15 páginas por dia no mesmo horário",
-        "Anotar 3 ideias-chave ao final de cada sessão",
-        "Revisar marcações 1x/semana por 10 minutos"
+        "Ler 10–15 páginas no mesmo horário",
+        "Anotar 3 ideias-chave ao final",
+        "Revisar marcações 1x/semana (10 min)"
       ];
       if (o.includes("estudar") || o.includes("prova") || o.includes("concurso")) return [
-        "Bloco diário de estudo focado (5–25 min) sem distrações",
+        "Bloco curto de estudo focado (5–25 min) sem distrações",
         "Revisar resumos/flashcards 10 min/dia",
         "Exercícios práticos breves 3x/semana"
       ];
-      if (o.includes("perder") || o.includes("peso") || o.includes("emagrecer")) return [
+      if (o.includes("peso") || o.includes("emagrecer")) return [
         "Caminhada leve diária (10–25 min) ou alongamento",
         "Trocar 1 lanche processado por fruta/água",
-        "Planejar 3 refeições simples da semana no domingo"
-      ];
-      if (o.includes("economiz") || o.includes("guardar") || o.includes("financ")) return [
-        "Anotar gastos em 2 categorias diariamente (5 min)",
-        "Definir teto de gasto variável para a semana",
-        "Substituir 1 despesa recorrente por alternativa mais barata"
+        "Planejar 3 refeições simples da semana"
       ];
       return [
         "Definir 1 micro-ação diária que puxe o objetivo (5–25 min)",
-        "Registrar o que foi feito ao final do dia (1–2 min)",
+        "Registrar rapidamente o que foi feito (1–2 min)",
         "Reservar 10–15 min semanais para revisar e ajustar"
       ];
     }
-    function normalizeTime(tempo) {
-      if (!tempo) return "5–25 minutos";
-      const t = (tempo + "").toLowerCase();
-      if (t.includes("5")) return "5 minutos";
-      if (t.includes("10")) return "10 minutos";
-      if (t.includes("25")) return "25 minutos";
-      if (t.includes("45")) return "45 minutos";
-      return "5–25 minutos";
+    function normalizeTime(t){ t=(t||"")+"".toLowerCase();
+      if(t.includes("5"))return "5 minutos"; if(t.includes("10"))return "10 minutos";
+      if(t.includes("25"))return "25 minutos"; if(t.includes("45"))return "45 minutos"; return "5–25 minutos";
     }
-    function generateLocalContract({ objetivo, porque, tempo, recursos, obstaculo, nome }) {
-      const actions = pickImpactActions(objetivo);
-      const tempoTxt = normalizeTime(tempo);
-      const porqueTxt = (porque && porque.trim()) ? porque.trim() : "priorizar meu progresso com passos curtos e consistentes";
-      const recTxt = (recursos && recursos.trim()) ? `Usarei: ${recursos.trim()}. ` : "";
-      const firstPerson = (nome && nome.trim()) ? `Eu, ${nome.trim()}, ` : "";
+    function generateLocalContract(d){
+      const actions = pickImpactActions(d.objetivo);
+      const tempoTxt = normalizeTime(d.tempo);
+      const porqueTxt = d.porque?.trim() || "priorizar minha saúde e progresso com passos curtos e consistentes";
+      const recTxt = d.recursos?.trim() ? `Usarei: ${d.recursos.trim()}. ` : "";
+      const nome = d.nome?.trim();
       const linhas = [
-        `📄 **Contrato de 30 dias: ${objetivo || "meu objetivo"}**`,
+        `📄 **Contrato de 30 Dias: ${d.objetivo || "meu objetivo"}**`,
         ``,
         `🤝 **Compromisso**`,
-        `${firstPerson}me comprometo a executar este plano por 30 dias.`,
+        `${nome ? `Eu, ${nome}, ` : "Eu, "}me comprometo a seguir este plano por 30 dias. Quando o dia estiver corrido, faço ao menos 5 minutos para manter a consistência.`,
         ``,
         `⏰ **Por que agora?**`,
         `${porqueTxt}.`,
@@ -134,16 +187,20 @@
         `3️⃣ ${actions[2]}`,
         ``,
         `📅 **Rotina diária**`,
-        `${tempoTxt} por dia, em blocos curtos e 100% presentes. ${recTxt}Se um dia for corrido, farei pelo menos 5 minutos para manter a chama acesa.`,
+        `${tempoTxt} por sessão (ou conforme definido), com foco total e sem distrações. ${recTxt}Se precisar, ajusto o horário para caber na rotina.`,
         ``,
         `📝 **Check-ins semanais**`,
-        `Todo domingo (10–15 min) para revisar avanços, ajustar ações e planejar a semana com clareza.`,
+        `Todo domingo (10–15 min) para revisar avanços, ajustar ações e planejar a semana seguinte.`,
         ``,
         `💪 **Retomada**`,
-        `Se eu falhar, não me critico. Reavalio, ajusto e retomo no dia seguinte.`
+        `Se eu perder um dia, retomo no seguinte com 5 minutos. O importante é continuar.`,
+        ``,
+        `✍️ **Assinatura**`,
+        `${nome ? `Eu, ${nome}, ` : "Eu, "}firmo este contrato comigo pelos próximos 30 dias.`
       ];
       return linhas.join("\n");
     }
+    // -----------------------------------------
 
     async function generateFromAPI(data){
       try{
@@ -153,16 +210,16 @@
           body: JSON.stringify(data)
         });
         const text = await resp.text();
-        let json; try { json = JSON.parse(text); } catch(e){ return null; }
+        let json; try { json = JSON.parse(text); } catch { return null; }
         if(!resp.ok) return null;
         return json;
-      }catch(e){ return null; }
+      }catch{ return null; }
     }
 
-    function formatContract(rawText, nome){
-      let txt = rawText || "";
+    function formatContract(txt, nome){
+      if(!txt) return "";
       txt = txt.replace(/\*\*Compromisso:\*\*/gi, "🤝 **Compromisso**");
-      txt = txt.replace(/\*\*Por que agora:?\??\*\*/gi, "⏰ **Por que agora?**");
+      txt = txt.replace(/\*\*Por que agora:?\?\*\*/gi, "⏰ **Por que agora?**");
       txt = txt.replace(/\*\*Ações de maior impacto:\*\*/gi, "🔥 **Ações de maior impacto**");
       txt = txt.replace(/\*\*Rotina diária:\*\*/gi, "📅 **Rotina diária**");
       txt = txt.replace(/\*\*Check-ins semanais:\*\*/gi, "📝 **Check-ins semanais**");
@@ -184,10 +241,13 @@
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
       const payload = await generateFromAPI(data);
-      let fullText = payload && payload.full ? formatContract(payload.full, data.nome) : generateLocalContract(data);
+      let baseText = payload?.full ? payload.full : generateLocalContract(data);
+      const fullText = payload?.full ? formatContract(baseText, data.nome) : baseText;
       cFull.textContent = fullText;
       preview.style.display = 'block';
       preview.scrollIntoView({ behavior:'smooth' });
+      // Atualiza legenda da jornada (ainda estática visualmente)
+      document.querySelector('.legend span b').textContent = 'Dia 0';
     });
   </script>
 </body>
